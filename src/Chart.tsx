@@ -9,6 +9,7 @@ export interface DataPoint {
   data: {
     [key: string]: number;
   };
+  img: string;
 }
 export interface DataPointWithColor extends DataPoint {
   color: string;
@@ -120,7 +121,8 @@ const Chart = (props: ChartProps) => {
           }
         }}
       ><TextBox style={{
-        background: col === optionalSort ? 'rgba(0, 0, 0, 0.2)' : '',
+        background: col === optionalSort ? 'rgba(0, 0, 0, 0.7)' : '',
+        color: col === optionalSort ? '#fff' : '',
       }}>
         <div>
           {col}
@@ -129,11 +131,9 @@ const Chart = (props: ChartProps) => {
           {dataWithColor.map((d, i) => {
             const label = abbrNames[i];
             return <div key={d.name}>
-              {dataWithColor.length > 1 ? <span>
+              <span>
                 {label} ({d.data[col]})
-              </span> : <span>
-                {d.data[col]}
-              </span>}
+              </span>
               <Chip
                 style={{
                   background: d.color,
@@ -158,6 +158,7 @@ const Container = styled.div<ContainerProps>`
 
   canvas {
     pointer-events: none;
+    position: relative;
   }
   ${({ height }) => css`
     canvas {
@@ -167,12 +168,23 @@ const Container = styled.div<ContainerProps>`
   `}
 `;
 
+const CompareImg = styled.img`
+  position: absolute;
+  max-width: 50vw;
+  max-height: 25vh;
+  top: 0;
+  background: #fff;
+  opacity: 0.5;
+  pointer-events: none;
+`;
+
 const Chip = styled.div`
   display: inline-block;
   vertical-align: middle;
   width: 12px;
   height: 12px;
   margin: 0 4px;
+  border: solid 1px #fff;
 `;
 
 interface TextBoxDotProps {
@@ -195,6 +207,7 @@ const TextBox = styled.div`
   white-space: nowrap;
   transform: translateX(-50%) translateY(-50%);
   cursor: pointer;
+  font-size: 0.8em;
 
   &:hover {
     opacity: 0.9;
@@ -208,8 +221,9 @@ const TextBox = styled.div`
 const getAbbrNames = (data: DataPointWithColor[]) => {
   let length = 1;
   const labels = data.map((d) => {
-    return d.name.split(/\s+/).reverse()[0].toUpperCase();
+    return d.name.split(/\s+/).reverse()[0];
   });
+  return labels;
   let abbrs = labels.map((w) => w.substr(0, length));
   while (abbrs.length !== (new Set(abbrs)).size) {
     length += 1;

@@ -35,7 +35,7 @@ const pointBreakdown = {
 };
 const words: { [key: string]: string } = {
   '知識': 'Knowledge',
-  '役割理解': 'Role understanding',
+  '役割理解': 'Understanding one\'s role',
   '共感': 'Empathy',
   '洞察': 'Insight',
   'タイミング': 'Timing',
@@ -137,6 +137,7 @@ const App = () => {
           return {
             name: '',
             data: {},
+            img: '',
           };
         }
         return {
@@ -144,6 +145,7 @@ const App = () => {
           data: {
             ...dataItem.points,
           },
+          img: `${imgPath}${dataItem.img}`,
         };
       }).filter((item) => !!item)}
     /></ChartContainer>}
@@ -198,7 +200,7 @@ const App = () => {
               } : {}}
             />
             <RowName>
-              {yomi.name}
+              {index + 1}. {yomi.name}
             </RowName>
             <RowScore>
               {val}
