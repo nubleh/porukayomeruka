@@ -10,14 +10,23 @@ export interface DataPoint {
     [key: string]: number;
   };
 }
+export interface DataPointWithColor extends DataPoint {
+  color: string;
+}
 interface ChartProps {
   height: number;
   data?: DataPoint[];
   cols?: string[];
+  maxPoint: number;
 }
 export interface AnimStep {
   [key: string]: number;
 }
+const colors = [
+  'rgba(255, 0, 0, 0.5)',
+  'rgba(0, 0, 255, 0.5)',
+  'rgba(0, 255, 0, 0.5)',
+];
 
 const animFrameCount = 100;
 
@@ -26,11 +35,19 @@ const Chart = (props: ChartProps) => {
     height,
     data,
     cols,
+    maxPoint,
   } = props;
   const animStep = useRef({} as AnimStep);
   const animFrame = useRef(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderKey = (data || []).map((i) => i.name).sort().join(',');
+
+  const dataWithColor: DataPointWithColor[] = (data || []).map((d, i) => {
+    return {
+      ...d,
+      color: colors[i % colors.length],
+    };
+  });
 
   const draw = () => {
     let isFinished = true;
@@ -43,8 +60,10 @@ const Chart = (props: ChartProps) => {
     drawCanvas({
       cv: canvasRef.current,
       axes: cols || [],
-      data: data || [],
+      data: dataWithColor,
       step: animStep.current,
+      animFrameCount,
+      maxPoint,
     });
     if (!isFinished) {
       cancelAnimationFrame(animFrame.current);
@@ -77,6 +96,29 @@ const Chart = (props: ChartProps) => {
       width={height * 2}
       height={height * 2}
     ></canvas>
+    {(cols || []).map((col) => {
+
+      return <TextBoxDot><TextBox>
+        <div>
+          {col}
+        </div>
+        <div>
+          {dataWithColor.map((d) => {
+            const label = d.name.split(/\s+/).reverse();
+            return <div>
+              <span>
+                {label[0] || ''}
+              </span>
+              <Chip
+                style={{
+                  background: d.color,
+                }}
+              />
+            </div>;
+          })}
+        </div>
+      </TextBox></TextBoxDot>;
+    })}
   </Container>;
 };
 
@@ -89,6 +131,7 @@ const Container = styled.div<ContainerProps>`
   width: 100%;
 
   canvas {
+    pointer-events: none;
   }
   ${({ height }) => css`
     canvas {
@@ -96,6 +139,33 @@ const Container = styled.div<ContainerProps>`
       height: ${height}px;
     }
   `}
+`;
+
+const Chip = styled.div`
+  display: inline-block;
+  vertical-align: middle;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px;
+`;
+
+const TextBoxDot = styled.div`
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+`;
+const TextBox = styled.div`
+  position: absolute;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  white-space: nowrap;
+
+  span {
+    vertical-align: middle;
+  }
 `;
 
 export default Chart;

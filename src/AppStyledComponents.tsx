@@ -5,12 +5,19 @@ export const Container = styled.div`
   background: #fff;
 `;
 
+export const ChartContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 10;
+`;
+
 export const Header = styled.div`
   text-align: center;
   padding: 16px;
   img {
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    max-height: 25vw;
   }
 `;
 

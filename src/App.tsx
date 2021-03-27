@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { getYomiData } from './AppHelpers';
 
 import {
+  ChartContainer,
   Container,
   Footer,
   Header,
@@ -82,12 +83,12 @@ const App = () => {
   const order = [...yomiItems].sort((y1, y2) => {
     const y1Selected = hexItems.indexOf(y1.name) !== -1;
     const y2Selected = hexItems.indexOf(y2.name) !== -1;
-    if (y1Selected && !y2Selected) {
-      return -1;
-    }
-    if (!y1Selected && y2Selected) {
-      return 1;
-    }
+    // if (y1Selected && !y2Selected) {
+    //   return -1;
+    // }
+    // if (!y1Selected && y2Selected) {
+    //   return 1;
+    // }
     return y1.total > y2.total ? -1 : y1.total < y2.total ? 1 : 0;
   }).map((item) => item.name);
 
@@ -97,10 +98,15 @@ const App = () => {
     <Header>
       <img src={'game.png'} alt={'Kuuki Yomi 3'}/>
     </Header>
-    {hexItems.length > 0 && <Chart
+    {hexItems.length > 0 && <ChartContainer><Chart
       key={chartRenderKey}
       height={hexHeight}
       cols={Object.keys(pointBreakdown)}
+      maxPoint={Math.max(...yomiItems.map((y) => {
+        return Math.max(...Object.keys(pointBreakdown).map((k) => {
+          return y.points[k];
+        }));
+      }))}
       data={hexItems.map((name) => {
         const dataItem = yomiItems.find((yomiItem) => yomiItem.name === name);
         if (!dataItem) {
@@ -116,7 +122,7 @@ const App = () => {
           },
         };
       }).filter((item) => !!item)}
-    />}
+    /></ChartContainer>}
     <ItemList
       style={{
         height: `${extraSpace + barHeight * yomiItems.length}px`,

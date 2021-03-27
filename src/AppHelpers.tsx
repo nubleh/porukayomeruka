@@ -29,7 +29,7 @@ export const parseYomiCSV = (csv: string) => {
     for (let x = 3; x < headers.length; x++) {
       const header = headers[x];
       const val = parseInt(cols[x] || '', 10);
-      if (header && val) {
+      if (header && header !== '0' && val) {
         item.points[header] = val;
       }
     }

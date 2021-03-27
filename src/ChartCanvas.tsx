@@ -1,18 +1,13 @@
-import { AnimStep, DataPoint } from "./Chart";
+import { AnimStep, DataPointWithColor } from "./Chart";
 
 interface DrawCanvasProps {
   cv: HTMLCanvasElement | null;
   axes: string[];
-  data: DataPoint[];
+  data: DataPointWithColor[];
   step: AnimStep;
+  animFrameCount: number;
+  maxPoint: number;
 }
-
-const maxPoint = 200;
-const colors = [
-  'rgba(255, 0, 0, 0.5)',
-  'rgba(0, 255, 0, 0.5)',
-  'rgba(0, 0, 255, 0.5)',
-];
 
 export const drawCanvas = (props: DrawCanvasProps) => {
   const {
@@ -20,8 +15,9 @@ export const drawCanvas = (props: DrawCanvasProps) => {
     axes,
     data,
     step,
+    animFrameCount,
+    maxPoint,
   } = props;
-  console.log(' drawing! oh boy!');
   const ctx = cv?.getContext('2d');
   if (!cv || !ctx) {
     return;
@@ -33,38 +29,70 @@ export const drawCanvas = (props: DrawCanvasProps) => {
   ctx.lineWidth = 4;
 
   const axPoints = [] as Array<[number, number]>;
-  axes.forEach((axis, index) => {
+  // calculate edge points
+  axes.forEach((_, index) => {
     const angle = (index / axes.length) * (Math.PI * 2);
     const axX = midX + Math.sin(angle) * radius;
     const axY = midY - Math.cos(angle) * radius;
     axPoints.push([axX, axY]);
-
-    ctx.beginPath();
-    ctx.moveTo(midX, midY);
-    ctx.lineTo(axX, axY);
-    ctx.stroke();
   });
+  const bgRegion = new Path2D();
+  bgRegion.moveTo(axPoints[0][0], axPoints[0][1]);
+  // draw the polygon
   axPoints.forEach((coord, i) => {
     const nextCoord = axPoints[i + 1] || axPoints[0];
     ctx.beginPath();
     ctx.moveTo(coord[0], coord[1]);
     ctx.lineTo(nextCoord[0], nextCoord[1]);
     ctx.stroke();
+    bgRegion.lineTo(nextCoord[0], nextCoord[1]);
   });
+  bgRegion.closePath();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fill(bgRegion, 'evenodd');
+
+  // draw the lines from center to edges of polygon
+  axPoints.forEach(([axX, axY]) => {
+    ctx.beginPath();
+    ctx.moveTo(midX, midY);
+    ctx.lineTo(axX, axY);
+    ctx.stroke();
+  });
+
+  // draw text
+  // const fontSize = radius / 8;
+  // axes.forEach((label, index) => {
+  //   const angle = (index / axes.length) * (Math.PI * 2);
+  //   const axX = midX + Math.sin(angle) * radius * 1.05;
+  //   const axY = midY - Math.cos(angle) * radius * 1.05;
+  //   const biasX = axX - midX;
+  //   const biasY = axY - midY > 0 ? fontSize : -fontSize;
+  //   ctx.font = `${fontSize}px sans-serif`;
+  //   ctx.textAlign = biasX < 0 ? 'end' : biasX > 0 ? 'start' : 'center';
+  //   ctx.fillStyle = '#000';
+  //   ctx.fillText(` ${label} `, axX, axY + biasY);
+  // });
 
   data.forEach((d, dataIndex) => {
     const {
       name,
+      color,
     } = d;
+    const dStep = step[name];
+    const segmentSize = animFrameCount / axes.length;
     const points = [] as Array<[number, number]>;
     axes.forEach((ax, index) => {
       const val = d.data[ax];
       if (val) {
         const rate = val / maxPoint;
         const ratedRadius = rate * radius;
+
+        const prevSegment = segmentSize * index;
+        const segmentStep = Math.min(segmentSize, Math.max(0, dStep - prevSegment));
+        const steppedRadius = ratedRadius * (segmentStep / segmentSize);
         const angle = (index / axes.length) * (Math.PI * 2);
-        const valX = midX + Math.sin(angle) * ratedRadius;
-        const valY = midY - Math.cos(angle) * ratedRadius;
+        const valX = midX + Math.sin(angle) * steppedRadius;
+        const valY = midY - Math.cos(angle) * steppedRadius;
         points.push([valX, valY]);
       } else {
         points.push([midX, midY]);
@@ -78,8 +106,7 @@ export const drawCanvas = (props: DrawCanvasProps) => {
       region.lineTo(nextCoord[0], nextCoord[1]);
     });
     region.closePath();
-    ctx.fillStyle = colors[dataIndex % colors.length];
-    console.log(ctx.fillStyle);
+    ctx.fillStyle = color;
     ctx.fill(region, 'evenodd');
   });
 };
