@@ -1,9 +1,22 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { getYomiData } from './AppHelpers';
 
-import styled, { css } from 'styled-components';
+import {
+  Container,
+  Footer,
+  Header,
+  ItemList,
+  Row,
+  RowBar,
+  RowContent,
+  RowIcon,
+  RowName,
+  RowScore,
+} from './AppStyledComponents';
+import Chart from './Chart';
 
-interface Yomi {
+export interface Yomi {
   name: string;
   url: string;
   total: number;
@@ -21,6 +34,7 @@ const pointBreakdown = {
 
 const imgPath = 'img/';
 const csvPath = 'yomeruka.csv';
+const maxCompare = 4;
 
 const App = () => {
   const [yomiItems, setYomiItems] = useState([] as Yomi[]);
@@ -30,6 +44,7 @@ const App = () => {
     window.innerHeight / 2,
     window.innerWidth,
   ));
+  const [init, setInit] = useState(false);
   useEffect(() => {
     const onResize = () => {
       setBarHeight(window.innerHeight / 20);
@@ -44,20 +59,33 @@ const App = () => {
     };
   }, []);
   useEffect(() => {
-    getYomiData().then((data) => {
+    getYomiData(csvPath).then((data) => {
       setYomiItems(data);
     });
+  }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      setInit(true);
+    }, 500);
   }, []);
   const toggleHex = (name: string) => {
     setHexItems((prevHexItems) => {
       return [
-        ...prevHexItems.filter((item) => item !== name),
         ...(prevHexItems.indexOf(name) === -1 ? [name] : []),
-      ];
+        ...prevHexItems.filter((item) => item !== name),
+      ].slice(0, maxCompare);
     });
   };
 
   const order = [...yomiItems].sort((y1, y2) => {
+    const y1Selected = hexItems.indexOf(y1.name) !== -1;
+    const y2Selected = hexItems.indexOf(y2.name) !== -1;
+    if (y1Selected && !y2Selected) {
+      return -1;
+    }
+    if (!y1Selected && y2Selected) {
+      return 1;
+    }
     return y1.total > y2.total ? -1 : y1.total < y2.total ? 1 : 0;
   }).map((item) => item.name);
 
@@ -67,6 +95,9 @@ const App = () => {
     <Header>
       <img src={'game.png'} alt={'Kuuki Yomi 3'}/>
     </Header>
+    {hexItems.length > 0 && <Chart
+      height={hexHeight}
+    />}
     <ItemList
       style={{
         height: `${extraSpace + barHeight * yomiItems.length}px`,
@@ -76,11 +107,17 @@ const App = () => {
         const width = yomi.total / 1000;
         const index = order.indexOf(yomi.name);
         const isSelected = hexItems.indexOf(yomi.name) !== -1;
+        const animOffset = isSelected
+          ? hexItems.indexOf(yomi.name) * 0.01
+          : hexItems.length > 0
+            ? (yomiItems.length - index) * 0.01
+            :  index * 0.01;
         return <Row
           barHeight={barHeight}
           key={yomi.name}
           style={{
             transform: `translateY(${extraSpace + index * barHeight}px)`,
+            transitionDelay: `${animOffset}s`,
           }}
           onClick={() => {
             toggleHex(yomi.name);
@@ -88,8 +125,8 @@ const App = () => {
         >
           <RowBar
             style={{
-              width: `${width * 100}%`,
-              background: isSelected ? '#ccc' : '',
+              transform: `scaleX(${init ? width : 0})`,
+              background: isSelected ? '#bbb' : '',
             }}
           />
           <RowContent>
@@ -108,111 +145,8 @@ const App = () => {
         </Row>;
       })}
     </ItemList>
+    <Footer></Footer>
   </Container>;
-};
-
-const Container = styled.div`
-  font-family: sans-serif;
-  background: #fff;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  padding: 16px;
-  img {
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-`;
-
-const ItemList = styled.div`
-  margin: 8px 0;
-  position: relative;
-`;
-interface RowProps {
-  barHeight: number;
-}
-const RowBar = styled.div`
-  position: absolute;
-  top: 0;
-  background: #ddd;
-`;
-const RowIcon = styled.div`
-  background-size: 150% auto;
-  background-position: center top;
-`;
-const Row = styled.div<RowProps>`
-  ${({ barHeight }) => css`
-    height: ${barHeight}px;
-    line-height: ${barHeight}px;
-
-    ${RowBar} {
-      left: ${barHeight}px;
-      height: ${barHeight}px;
-    }
-
-    ${RowIcon} {
-      width: ${barHeight}px;
-      height: ${barHeight}px;
-    }
-  `}
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  transition: transform 1s;
-`;
-
-const RowContent = styled.div`
-  position: relative;
-  display: flex;
-  z-index: 5;
-`;
-const RowName = styled.div`
-  flex: 1 1 auto;
-  padding: 0 8px;
-`;
-const RowScore = styled.div`
-  flex: none;
-  padding: 0 8px;
-`;
-
-const getYomiData = () => {
-  return new Promise<Yomi[]>((resolve) => {
-    fetch(csvPath).then((resp) => resp.text()).then((csv) => {
-      resolve(parseYomiCSV(csv));
-    });
-  });
-};
-
-const parseYomiCSV = (csv: string) => {
-  const rows = csv.split("\n");
-  const headers = rows[1].split(',');
-  const data: Yomi[] = [];
-  rows.forEach((row) => {
-    const cols = row.split(',');
-    const name = cols[0];
-    const total = parseInt(cols[3], 10) || 0;
-    if (!name || !total) {
-      return;
-    }
-    const item: Yomi = {
-      name,
-      url: cols[1],
-      img: cols[2],
-      total,
-      points: {},
-    };
-    for (let x = 3; x < headers.length; x++) {
-      const header = headers[x];
-      const val = parseInt(cols[x] || '', 10);
-      if (header && val) {
-        item.points[header] = val;
-      }
-    }
-    data.push(item);
-  });
-  return data;
 };
 
 export default App;
