@@ -81,8 +81,8 @@ const App = () => {
   };
 
   const order = [...yomiItems].sort((y1, y2) => {
-    const y1Selected = hexItems.indexOf(y1.name) !== -1;
-    const y2Selected = hexItems.indexOf(y2.name) !== -1;
+    // const y1Selected = hexItems.indexOf(y1.name) !== -1;
+    // const y2Selected = hexItems.indexOf(y2.name) !== -1;
     // if (y1Selected && !y2Selected) {
     //   return -1;
     // }

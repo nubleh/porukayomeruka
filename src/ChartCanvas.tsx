@@ -22,7 +22,7 @@ export const drawCanvas = (props: DrawCanvasProps) => {
   if (!cv || !ctx) {
     return;
   }
-  cv.width = cv.width;
+  cv.width = cv.width + 0;
   const radius = cv.width * 0.3;
   const midX = cv.width / 2;
   const midY = cv.height / 2;

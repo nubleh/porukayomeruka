@@ -87,7 +87,11 @@ const Chart = (props: ChartProps) => {
 
     cancelAnimationFrame(animFrame.current);
     animFrame.current = requestAnimationFrame(draw);
-  }, [renderKey]);
+  }, [renderKey, data]);
+
+  const radius = height / 2.5;
+  const abbrNames = getAbbrNames(dataWithColor);
+
   return <Container
     height={height}
   >
@@ -96,19 +100,29 @@ const Chart = (props: ChartProps) => {
       width={height * 2}
       height={height * 2}
     ></canvas>
-    {(cols || []).map((col) => {
-
-      return <TextBoxDot><TextBox>
+    {(cols || []).map((col, index, array) => {
+      const angle = (index / array.length) * (Math.PI * 2);
+      const axX = Math.sin(angle) * radius;
+      const axY = - Math.cos(angle) * radius;
+      return <TextBoxDot
+        key={col}
+        top={height / 2}
+        style={{
+          transform: `translateX(${axX}px) translateY(${axY}px)`,
+        }}
+      ><TextBox>
         <div>
           {col}
         </div>
         <div>
-          {dataWithColor.map((d) => {
-            const label = d.name.split(/\s+/).reverse();
-            return <div>
-              <span>
-                {label[0] || ''}
-              </span>
+          {dataWithColor.map((d, i) => {
+            const label = abbrNames[i];
+            return <div key={d.name}>
+              {dataWithColor.length > 1 ? <span>
+                {label} ({d.data[col]})
+              </span> : <span>
+                {d.data[col]}
+              </span>}
               <Chip
                 style={{
                   background: d.color,
@@ -129,6 +143,7 @@ const Container = styled.div<ContainerProps>`
   position: absolute;
   text-align: center;
   width: 100%;
+  height: 0;
 
   canvas {
     pointer-events: none;
@@ -149,12 +164,17 @@ const Chip = styled.div`
   margin: 0 4px;
 `;
 
-const TextBoxDot = styled.div`
+interface TextBoxDotProps {
+  top: number;
+}
+const TextBoxDot = styled.div<TextBoxDotProps>`
   width: 1px;
   height: 1px;
   position: absolute;
   left: 50%;
-  top: 50%;
+  ${({ top }) => css`
+    top: ${top}px;
+  `}
 `;
 const TextBox = styled.div`
   position: absolute;
@@ -162,10 +182,24 @@ const TextBox = styled.div`
   background: rgba(255, 255, 255, 0.8);
   border-radius: 4px;
   white-space: nowrap;
+  transform: translateX(-50%) translateY(-50%);
 
   span {
     vertical-align: middle;
   }
 `;
+
+const getAbbrNames = (data: DataPointWithColor[]) => {
+  let length = 1;
+  const labels = data.map((d) => {
+    return d.name.split(/\s+/).reverse()[0].toUpperCase();
+  });
+  let abbrs = labels.map((w) => w.substr(0, length));
+  while (abbrs.length !== (new Set(abbrs)).size) {
+    length += 1;
+    abbrs = labels.map((w) => w.substr(0, length));
+  }
+  return abbrs;
+};
 
 export default Chart;
