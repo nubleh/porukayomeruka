@@ -35,6 +35,10 @@ export const ItemListHeader = styled.div<RowProps>`
   transition: transform 0.5s;
   padding: 0 8px;
   font-weight: bold;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.7;
+  }
   ${({ barHeight }) => css`
     height: ${barHeight}px;
     line-height: ${barHeight}px;
