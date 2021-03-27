@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getYomiData } from './AppHelpers';
 
 import {
@@ -55,6 +55,7 @@ const App = () => {
   ));
   const [init, setInit] = useState(false);
   const [chartRenderKey, setChartRenderKey] = useState(Date.now());
+  const heightRef = useRef(window.innerHeight);
   const [sortCol, setSortCol] = useState('');
   useEffect(() => {
     const onResize = () => {
@@ -63,6 +64,11 @@ const App = () => {
         window.innerHeight / 2,
         window.innerWidth,
       ));
+      const diff = Math.abs(heightRef.current - window.innerHeight);
+      heightRef.current = window.innerHeight;
+      if (diff < 100) {
+        return;
+      }
       setChartRenderKey(Date.now());
     };
     window.addEventListener('resize', onResize);
