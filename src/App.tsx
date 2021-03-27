@@ -59,16 +59,16 @@ const App = () => {
   const [sortCol, setSortCol] = useState('');
   useEffect(() => {
     const onResize = () => {
-      setBarHeight(window.innerHeight / 20);
-      setHexHeight(Math.min(
-        window.innerHeight / 2,
-        window.innerWidth,
-      ));
       const diff = Math.abs(heightRef.current - window.innerHeight);
       heightRef.current = window.innerHeight;
       if (diff < 100) {
         return;
       }
+      setBarHeight(window.innerHeight / 20);
+      setHexHeight(Math.min(
+        window.innerHeight / 2,
+        window.innerWidth,
+      ));
       setChartRenderKey(Date.now());
     };
     window.addEventListener('resize', onResize);
