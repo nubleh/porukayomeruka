@@ -8,6 +8,7 @@ import {
   Footer,
   Header,
   ItemList,
+  ItemListHeader,
   Row,
   RowBar,
   RowContent,
@@ -32,6 +33,13 @@ const pointBreakdown = {
   '洞察': ['情報統合力', '瞬発力'],
   'タイミング': ['リズム感', '間合い'],
 };
+const words: { [key: string]: string } = {
+  '知識': 'Knowledge',
+  '役割理解': 'Role understanding',
+  '共感': 'Empathy',
+  '洞察': 'Insight',
+  'タイミング': 'Timing',
+};
 
 const imgPath = 'img/';
 const csvPath = 'yomeruka.csv';
@@ -47,6 +55,7 @@ const App = () => {
   ));
   const [init, setInit] = useState(false);
   const [chartRenderKey, setChartRenderKey] = useState(Date.now());
+  const [sortCol, setSortCol] = useState('');
   useEffect(() => {
     const onResize = () => {
       setBarHeight(window.innerHeight / 20);
@@ -71,6 +80,11 @@ const App = () => {
       setInit(true);
     }, 500);
   }, []);
+  useEffect(() => {
+    if (hexItems.length === 0) {
+      setSortCol('');
+    }
+  }, [hexItems]);
   const toggleHex = (name: string) => {
     setHexItems((prevHexItems) => {
       return [
@@ -89,7 +103,9 @@ const App = () => {
     // if (!y1Selected && y2Selected) {
     //   return 1;
     // }
-    return y1.total > y2.total ? -1 : y1.total < y2.total ? 1 : 0;
+    const y1Val = sortCol ? y1.points[sortCol] : y1.total;
+    const y2Val = sortCol ? y2.points[sortCol] : y2.total;
+    return y1Val > y2Val ? -1 : y1Val < y2Val ? 1 : 0;
   }).map((item) => item.name);
 
   const extraSpace = hexItems.length > 0 ? hexHeight : 0;
@@ -102,6 +118,14 @@ const App = () => {
       key={chartRenderKey}
       height={hexHeight}
       cols={Object.keys(pointBreakdown)}
+      optionalSort={sortCol}
+      setOptionalSort={(col) => {
+        if (col === sortCol) {
+          setSortCol('');
+        } else {
+          setSortCol(col);
+        }
+      }}
       maxPoint={Math.max(...yomiItems.map((y) => {
         return Math.max(...Object.keys(pointBreakdown).map((k) => {
           return y.points[k];
@@ -125,14 +149,27 @@ const App = () => {
     /></ChartContainer>}
     <ItemList
       style={{
-        height: `${extraSpace + barHeight * yomiItems.length}px`,
+        height: `${extraSpace + (barHeight * (yomiItems.length + 1))}px`,
       }}
     >
+      <ItemListHeader
+        barHeight={barHeight}
+        style={{
+          transform: `translateY(${extraSpace}px)`,
+          transitionDelay: `${hexItems.length > 0
+            ? yomiItems.length * 0.01
+            : 0
+          }s`,
+        }}
+      >
+        {sortCol ? `${sortCol} (${words[sortCol]})` : 'Total'}
+      </ItemListHeader>
       {yomiItems.map((yomi) => {
-        const width = yomi.total / 1000;
+        const val = sortCol ? yomi.points[sortCol] : yomi.total;
+        const width = sortCol ? val / 200 : yomi.total / 1000;
         const index = order.indexOf(yomi.name);
         const isSelected = hexItems.indexOf(yomi.name) !== -1;
-        const animOffset = isSelected
+        const animOffset = (false && isSelected)
           ? hexItems.indexOf(yomi.name) * 0.01
           : hexItems.length > 0
             ? (yomiItems.length - index) * 0.01
@@ -141,7 +178,7 @@ const App = () => {
           barHeight={barHeight}
           key={yomi.name}
           style={{
-            transform: `translateY(${extraSpace + index * barHeight}px)`,
+            transform: `translateY(${extraSpace + (index + 1) * barHeight}px)`,
             transitionDelay: `${animOffset}s`,
           }}
           onClick={() => {
@@ -164,7 +201,7 @@ const App = () => {
               {yomi.name}
             </RowName>
             <RowScore>
-              {yomi.total}
+              {val}
             </RowScore>
           </RowContent>
         </Row>;

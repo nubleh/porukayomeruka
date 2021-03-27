@@ -25,9 +25,22 @@ export const ItemList = styled.div`
   margin: 8px 0;
   position: relative;
 `;
+
 interface RowProps {
   barHeight: number;
 }
+
+export const ItemListHeader = styled.div<RowProps>`
+  text-align: right;
+  transition: transform 0.5s;
+  padding: 0 8px;
+  font-weight: bold;
+  ${({ barHeight }) => css`
+    height: ${barHeight}px;
+    line-height: ${barHeight}px;
+  `}
+`;
+
 export const RowBar = styled.div`
   position: absolute;
   top: 0;

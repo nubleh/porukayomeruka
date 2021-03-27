@@ -18,6 +18,8 @@ interface ChartProps {
   data?: DataPoint[];
   cols?: string[];
   maxPoint: number;
+  optionalSort?: string;
+  setOptionalSort?: (newSort: string) => void;
 }
 export interface AnimStep {
   [key: string]: number;
@@ -36,6 +38,8 @@ const Chart = (props: ChartProps) => {
     data,
     cols,
     maxPoint,
+    optionalSort,
+    setOptionalSort,
   } = props;
   const animStep = useRef({} as AnimStep);
   const animFrame = useRef(0);
@@ -110,7 +114,14 @@ const Chart = (props: ChartProps) => {
         style={{
           transform: `translateX(${axX}px) translateY(${axY}px)`,
         }}
-      ><TextBox>
+        onClick={() => {
+          if (setOptionalSort) {
+            setOptionalSort(col);
+          }
+        }}
+      ><TextBox style={{
+        background: col === optionalSort ? 'rgba(0, 0, 0, 0.2)' : '',
+      }}>
         <div>
           {col}
         </div>
@@ -183,6 +194,11 @@ const TextBox = styled.div`
   border-radius: 4px;
   white-space: nowrap;
   transform: translateX(-50%) translateY(-50%);
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
 
   span {
     vertical-align: middle;
