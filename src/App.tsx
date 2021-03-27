@@ -34,7 +34,7 @@ const pointBreakdown = {
 
 const imgPath = 'img/';
 const csvPath = 'yomeruka.csv';
-const maxCompare = 4;
+const maxCompare = 2;
 
 const App = () => {
   const [yomiItems, setYomiItems] = useState([] as Yomi[]);
@@ -45,6 +45,7 @@ const App = () => {
     window.innerWidth,
   ));
   const [init, setInit] = useState(false);
+  const [chartRenderKey, setChartRenderKey] = useState(Date.now());
   useEffect(() => {
     const onResize = () => {
       setBarHeight(window.innerHeight / 20);
@@ -52,6 +53,7 @@ const App = () => {
         window.innerHeight / 2,
         window.innerWidth,
       ));
+      setChartRenderKey(Date.now());
     };
     window.addEventListener('resize', onResize);
     return () => {
@@ -71,8 +73,8 @@ const App = () => {
   const toggleHex = (name: string) => {
     setHexItems((prevHexItems) => {
       return [
-        ...(prevHexItems.indexOf(name) === -1 ? [name] : []),
         ...prevHexItems.filter((item) => item !== name),
+        ...(prevHexItems.indexOf(name) === -1 ? [name] : []),
       ].slice(0, maxCompare);
     });
   };
@@ -96,7 +98,24 @@ const App = () => {
       <img src={'game.png'} alt={'Kuuki Yomi 3'}/>
     </Header>
     {hexItems.length > 0 && <Chart
+      key={chartRenderKey}
       height={hexHeight}
+      cols={Object.keys(pointBreakdown)}
+      data={hexItems.map((name) => {
+        const dataItem = yomiItems.find((yomiItem) => yomiItem.name === name);
+        if (!dataItem) {
+          return {
+            name: '',
+            data: {},
+          };
+        }
+        return {
+          name,
+          data: {
+            ...dataItem.points,
+          },
+        };
+      }).filter((item) => !!item)}
     />}
     <ItemList
       style={{
