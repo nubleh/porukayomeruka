@@ -169,6 +169,12 @@ const App = () => {
             : 0
           }s`,
         }}
+        onClick={() => {
+          const cols = Object.keys(pointBreakdown);
+          const currentIndex = cols.indexOf(sortCol);
+          const nextCol = cols[currentIndex + 1];
+          setSortCol(nextCol || '');
+        }}
       >
         {sortCol ? `${sortCol} (${words[sortCol]})` : 'Total'}
       </ItemListHeader>
