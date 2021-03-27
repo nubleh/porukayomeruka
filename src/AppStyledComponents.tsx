@@ -3,6 +3,8 @@ import styled, { css } from "styled-components";
 export const Container = styled.div`
   font-family: sans-serif;
   background: #fff;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
 export const ChartContainer = styled.div`
@@ -56,6 +58,11 @@ export const RowBar = styled.div`
 export const RowIcon = styled.div`
   background-size: 150% auto;
   background-position: center top;
+  background-color: #fff;
+`;
+export const RowScore = styled.div`
+  flex: none;
+  padding: 0 8px;
 `;
 export const Row = styled.div<RowProps>`
   position: absolute;
@@ -70,6 +77,16 @@ export const Row = styled.div<RowProps>`
   ${({ barHeight }) => css`
     height: ${barHeight}px;
     line-height: ${barHeight}px;
+    &:hover {
+      background-image: linear-gradient(
+        to bottom,
+        silver 0,
+        silver 1px,
+        transparent 1px,
+        transparent ${barHeight - 1}px,
+        silver ${barHeight - 1}px
+      );
+    }
 
     ${RowBar} {
       left: ${barHeight}px;
@@ -90,10 +107,6 @@ export const RowContent = styled.div`
 `;
 export const RowName = styled.div`
   flex: 1 1 auto;
-  padding: 0 8px;
-`;
-export const RowScore = styled.div`
-  flex: none;
   padding: 0 8px;
 `;
 
