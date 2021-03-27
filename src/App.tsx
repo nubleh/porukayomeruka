@@ -206,7 +206,11 @@ const App = () => {
               } : {}}
             />
             <RowName>
-              {index + 1}. {yomi.name}
+              {index + 1}. {yomi.name} (<a
+                href={yomi.url}
+                target={'_blank'}
+                rel={'noopener noreferrer'}
+              >stream</a>)
             </RowName>
             <RowScore>
               {val}
