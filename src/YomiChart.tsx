@@ -34,8 +34,8 @@ const pointBreakdown = {
   'タイミング': ['リズム感', '間合い'],
 };
 const words: { [key: string]: string } = {
-  '知識': 'Knowledge',
-  '役割理解': 'Understanding one\'s role',
+  '知識': 'Know-how',
+  '役割理解': 'Role comprehension',
   '共感': 'Empathy',
   '洞察': 'Insight',
   'タイミング': 'Timing',
