@@ -53,7 +53,53 @@ const TsukuruChart = () => {
   ];
   const params = ['dur', 'durHunter', 'durDog', 'durCat'] as SortParam[];
 
+  const [binCount, setBinCount] = useState(5);
+  const binSize = maxDur / binCount;
+  const bins = [] as Tsukuru[][];
+  for (let x = 0; x < binCount; x++) {
+    bins.push([]);
+  }
+  numberedData.forEach(d => {
+    const binIndex = Math.floor(d.dur / binSize);
+    if (!bins[binIndex]) {
+      bins[binIndex] = [];
+    }
+    bins[binIndex].push(d);
+  });
+  const highestBin = Math.max(...bins.map(b => b.length));
+  const binHeight = 400 / highestBin;
+
   return <Container>
+    {/*
+      <div>
+        <div onClick={() => {
+          setBinCount(binCount + 1);
+        }}>more</div>
+        <div onClick={() => {
+          setBinCount(Math.max(1, binCount - 1));
+        }}>less</div>
+        <div style={{marginTop: 50}}>{binCount} {binCount < 2 ? 'bin' : 'bins'}</div>
+        <Histogram style={{
+          width: '400px',
+        }}>
+          {bins.map((b, i) => {
+            const from = Math.round(i * binSize);
+            const fromLabel = labelDur(from);
+            const to = Math.round((i + 1) * binSize);
+            const toLabel = labelDur(to);
+            const label = `${from}~${to}`;
+            return <div
+              style={{
+                height: `${b.length * binHeight}px`,
+                width: `${100 / binCount}%`,
+              }}
+            >
+              {b.length}
+            </div>;
+          })}
+        </Histogram>
+      </div>
+    */}
     <div>
       {params.map((d) => {
         return <div
@@ -63,6 +109,9 @@ const TsukuruChart = () => {
         >{d}</div>;
       })}
     </div>
+    <h1>
+      How long do the HoloHunters take to create their characters?
+    </h1>
     <Legend>
       <div>
         <div style={{ backgroundColor: colors[0] }}/>
@@ -117,16 +166,44 @@ const TsukuruChart = () => {
         </ListItem>;
       })}
     </List>
-    {sortedData.map(i => {
-      return <div>
-        {JSON.stringify(i)}
-      </div>;
-    })}
+    <Offstream>
+      <div>
+        These hunters created their characters off-stream
+      </div>
+      {offstreamData.map(i => {
+        return <Icon style={{
+          backgroundImage: `url(${imgPath}${i.img})`,
+        }}/>;
+      })}
+    </Offstream>
   </Container>;
 };
+const Offstream = styled.div`
+  margin: 20px;
 
+  > div {
+    margin: 4px;
+  }
+`;
+const Histogram = styled.div`
+  width: 100%;
+  font-size: 0.8em;
+  text-align: center;
+  margin-bottom: 50px;
+
+  > div {
+    padding: 2px;
+    box-sizing: border-box;
+    background: #000;
+    color: #fff;
+    vertical-align: bottom;
+    display: inline-block;
+  }
+`;
 const Container = styled.div`
   padding: 40px;
+  box-sizing: border-box;
+  width: 100vw;
 `;
 const Legend = styled.div`
   text-align: center;
@@ -147,10 +224,9 @@ const Legend = styled.div`
 const List = styled.div`
 `;
 const ListItem = styled.div`
-  height: 50px;
   display: flex;
   align-items: center;
-  margin: 4px 0;
+  margin: 14px 0;
 `;
 const Icon = styled.div`
   width: 50px;
@@ -182,7 +258,8 @@ const Bars = styled.div`
   }
 `;
 const Chip = styled.div`
-vertical-align: middle;
+  white-space: nowrap;
+  vertical-align: middle;
   display: inline-block;
   padding: 2px 4px;
   background: silver;
