@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/porukayomeruka/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/porukayomeruka/static/js/main.de88c80a.chunk.js",
-    "main.js.map": "/porukayomeruka/static/js/main.de88c80a.chunk.js.map",
+    "main.js": "/porukayomeruka/static/js/main.3c5af113.chunk.js",
+    "main.js.map": "/porukayomeruka/static/js/main.3c5af113.chunk.js.map",
     "runtime-main.js": "/porukayomeruka/static/js/runtime-main.d36b9b3f.js",
     "runtime-main.js.map": "/porukayomeruka/static/js/runtime-main.d36b9b3f.js.map",
-    "static/js/2.6b181377.chunk.js": "/porukayomeruka/static/js/2.6b181377.chunk.js",
-    "static/js/2.6b181377.chunk.js.map": "/porukayomeruka/static/js/2.6b181377.chunk.js.map",
+    "static/js/2.86b8c1f8.chunk.js": "/porukayomeruka/static/js/2.86b8c1f8.chunk.js",
+    "static/js/2.86b8c1f8.chunk.js.map": "/porukayomeruka/static/js/2.86b8c1f8.chunk.js.map",
     "static/js/3.00073dbb.chunk.js": "/porukayomeruka/static/js/3.00073dbb.chunk.js",
     "static/js/3.00073dbb.chunk.js.map": "/porukayomeruka/static/js/3.00073dbb.chunk.js.map",
     "index.html": "/porukayomeruka/index.html",
     "static/css/main.6dea0f05.chunk.css.map": "/porukayomeruka/static/css/main.6dea0f05.chunk.css.map",
-    "static/js/2.6b181377.chunk.js.LICENSE.txt": "/porukayomeruka/static/js/2.6b181377.chunk.js.LICENSE.txt"
+    "static/js/2.86b8c1f8.chunk.js.LICENSE.txt": "/porukayomeruka/static/js/2.86b8c1f8.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.d36b9b3f.js",
-    "static/js/2.6b181377.chunk.js",
+    "static/js/2.86b8c1f8.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.de88c80a.chunk.js"
+    "static/js/main.3c5af113.chunk.js"
   ]
 }
